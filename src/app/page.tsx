@@ -8,7 +8,7 @@ import { ThemeToggle } from "@/components/ThemeToggle";
 import LogoMarquee from "@/components/Marque/Lm";
 import { ScrollProgress } from "@/components/magicui/scroll-progress";
 import { InteractiveHoverButton } from "@/components/magicui/interactive-hover-button";
-import { ShinyButton } from "@/components/magicui/shiny-button";
+
 
 
 const Index = () => {

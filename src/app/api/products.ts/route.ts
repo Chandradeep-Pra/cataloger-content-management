@@ -112,7 +112,7 @@ export async function DELETE(req: Request) {
     }
 }
 
-export async function GET(req: Request) {
+export async function GET() {
     const { userId } = await auth();
     if (!userId) {
       return NextResponse.json(

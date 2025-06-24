@@ -121,7 +121,7 @@ export async function GET() {
   
       // Step 2: Build nested tree
       const categoryMap = new Map();
-      const roots: any[] = [];
+      let roots: any[] = [];
   
       categories.forEach((cat) => {
         cat.children = [];
