@@ -41,10 +41,10 @@ const userSchema: Schema = new Schema(
       type: String,
     },
     phone: {
-      type: Number,
+      type: [String],
     },
     password: {
-      type: [String],
+      type: String,
       required: true
     },
   },
