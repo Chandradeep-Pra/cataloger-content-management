@@ -69,7 +69,7 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({
       success: true,
       message: "User created and saved in database",
-    });
+    },{status:200});
   } catch (error) {
     console.error("Error saving user:", error);
     return NextResponse.json({

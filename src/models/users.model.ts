@@ -44,8 +44,8 @@ const userSchema: Schema = new Schema(
       type: Number,
     },
     password: {
-      type: String,
-      required: true,
+      type: [String],
+      required: true
     },
   },
   { timestamps: true } // Automatically adds createdAt and updatedAt
