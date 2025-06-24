@@ -1,38 +1,66 @@
-// app/api/webhooks/user-created/route.ts
 import { NextRequest, NextResponse } from "next/server";
-import  dbConnect  from "@/lib/dbConnect";
-import {User} from "@/models/users.model";
-
-
+import dbConnect from "@/lib/dbConnect";
+import { User } from "@/models/users.model";
+import { Webhook } from "svix";
 
 export async function POST(req: NextRequest) {
-    const body = await req.json();
+  const WEBHOOK_SECRET = process.env.CLERK_WEBHOOK_SECRET;
 
-    const { id, email_addresses, first_name, last_name, profile_image_url, username , phone_numbers} = body.data;
+  if (!WEBHOOK_SECRET) {
+    return NextResponse.json({ success: false, message: "Missing Clerk webhook secret" }, { status: 500 });
+  }
 
-    await dbConnect();
-    try {
-        await User.create ({
-        clerkId: id,
-        username: username,
-        email: email_addresses[0].email_address,
-        fullname: `${first_name} ${last_name}`,
-        categories: [],
-        avatar: profile_image_url,
-        phone: phone_numbers,
-        password: "",
-        });
-    
-        return NextResponse.json({
-        success:true,
-        message:"User created successfully and saved in database"
-        },{status:200})
-    } catch (error) {
-        console.error("Error saving user in database",error);
-        return NextResponse.json({
-            success: false,
-            message:"Error creating user and saving in database"
-            },{status:500})
+  // Clerk sends raw payload for signature verification
+  const payload = await req.text();
+  const svix_id = req.headers.get("svix-id") ?? "";
+  const svix_timestamp = req.headers.get("svix-timestamp") ?? "";
+  const svix_signature = req.headers.get("svix-signature") ?? "";
 
+  const wh = new Webhook(WEBHOOK_SECRET);
+
+  let evt;
+  try {
+    evt = wh.verify(payload, {
+      "svix-id": svix_id,
+      "svix-timestamp": svix_timestamp,
+      "svix-signature": svix_signature,
+    });
+  } catch (err) {
+    console.error("Webhook verification failed:", err);
+    return NextResponse.json({ success: false, message: "Invalid signature" }, { status: 400 });
+  }
+
+  const { id, email_addresses, first_name, last_name, profile_image_url, username, phone_numbers } = evt.data;
+
+  await dbConnect();
+
+  try {
+    const existingUser = await User.findOne({ clerkId: id });
+
+    if (existingUser) {
+      return NextResponse.json({ success: true, message: "User already exists" }, { status: 200 });
     }
+
+    await User.create({
+      clerkId: id,
+      username,
+      email: email_addresses?.[0]?.email_address || "",
+      fullname: `${first_name || ""} ${last_name || ""}`.trim(),
+      avatar: profile_image_url,
+      phone: phone_numbers || [],
+      password: "",
+      categories: [],
+    });
+
+    return NextResponse.json({
+      success: true,
+      message: "User created and saved in database",
+    });
+  } catch (error) {
+    console.error("Error saving user:", error);
+    return NextResponse.json({
+      success: false,
+      message: "Failed to save user in database",
+    }, { status: 500 });
+  }
 }
