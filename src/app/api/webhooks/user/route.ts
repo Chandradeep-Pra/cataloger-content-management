@@ -4,7 +4,7 @@ import { User } from "@/models/users.model";
 import { Webhook } from "svix";
 
 export async function POST(req: NextRequest) {
-  const WEBHOOK_SECRET = process.env.CLERK_WEBHOOK_SECRET;
+  const WEBHOOK_SECRET = process.env.CLERK_WEBHOOK_SIGNING_SECRET;
 
   if (!WEBHOOK_SECRET) {
     return NextResponse.json({ success: false, message: "Missing Clerk webhook secret" }, { status: 500 });
