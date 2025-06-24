@@ -18,13 +18,27 @@ export async function POST(req: NextRequest) {
 
   const wh = new Webhook(WEBHOOK_SECRET);
 
-  let evt;
+  interface ClerkUserCreatedEvent {
+    data: {
+      id: string;
+      email_addresses: { email_address: string }[];
+      first_name: string;
+      last_name: string;
+      profile_image_url: string;
+      username: string;
+      phone_numbers: any[]; // You can type more strictly if needed
+    };
+    object: string;
+    type: string;
+  }
+
+  let evt: ClerkUserCreatedEvent ;
   try {
     evt = wh.verify(payload, {
       "svix-id": svix_id,
       "svix-timestamp": svix_timestamp,
       "svix-signature": svix_signature,
-    });
+    }) as ClerkUserCreatedEvent;
   } catch (err) {
     console.error("Webhook verification failed:", err);
     return NextResponse.json({ success: false, message: "Invalid signature" }, { status: 400 });
