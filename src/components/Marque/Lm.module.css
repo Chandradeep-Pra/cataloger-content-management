@@ -1,0 +1,40 @@
+.logoSection {
+    text-align: center;
+    overflow: hidden;
+    position: relative;
+    padding: 40px 0;
+  }
+  
+ 
+  .logoCarousel {
+    overflow: hidden;
+    mask-image: linear-gradient(to right, transparent, black 10%, black 90%, transparent);
+    -webkit-mask-image: linear-gradient(to right, transparent, black 10%, black 90%, transparent);
+  }
+  
+  .logoTrack {
+    display: flex;
+    gap: 60px;
+    animation: scroll 25s linear infinite;
+    width: fit-content;
+  }
+  
+  .logoImage {
+    opacity: 0.3;
+    transition: opacity 0.3s;
+    height: auto;
+  }
+  
+  .logoImage:hover {
+    opacity: 0.8;
+  }
+  
+  @keyframes scroll {
+    0% {
+      transform: translateX(0);
+    }
+    100% {
+      transform: translateX(-50%);
+    }
+  }
+  
