@@ -26,7 +26,7 @@ export async function POST(req: NextRequest) {
       last_name: string;
       profile_image_url: string;
       username: string;
-      phone_numbers: any[]; // You can type more strictly if needed
+      phone_numbers: String[]; // You can type more strictly if needed
     };
     object: string;
     type: string;
