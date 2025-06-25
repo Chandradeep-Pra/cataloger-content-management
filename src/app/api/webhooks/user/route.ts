@@ -58,7 +58,7 @@ export async function POST(req: NextRequest) {
     await User.create({
       clerkId: id,
       username: username || "",
-      email: email_addresses[0]?.email_address || "",
+      email: email_addresses?.[0]?.email_address || "",
       fullName: `${first_name} ${last_name }`.trim(),
       avatar: profile_image_url || "",
       phone: phone_numbers?.[0]?.phone_number || "",
