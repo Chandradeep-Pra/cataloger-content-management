@@ -4,7 +4,6 @@ import styles from './Lm.module.css';
 
 const logos = [
   '/Netflix.svg',
-  '/Youtube.svg',
   '/Instagram.svg',
   '/Uber.svg',
   '/Spotify.svg',
