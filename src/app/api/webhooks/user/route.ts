@@ -44,7 +44,7 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ success: false, message: "Invalid signature" }, { status: 400 });
   }
 
-  const { id, email_addresses, first_name, last_name, profile_image_url, username, phone_numbers } =  evt.data;
+  const { id, email_addresses, first_name, last_name, profile_image_url, username, phone_numbers,  } =  evt.data;
 
   await dbConnect();
 
@@ -62,7 +62,6 @@ export async function POST(req: NextRequest) {
       fullName: `${first_name || ""} ${last_name }`.trim(),
       avatar: profile_image_url,
       phone: phone_numbers || [],
-      password: "",
       categories: [],
     });
 

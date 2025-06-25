@@ -8,7 +8,6 @@ export interface User extends Document {
   categories: mongoose.Types.ObjectId[]; // Ref to Category
   avatar: string;
   phone: number;
-  password: string;
 }
 
 const userSchema: Schema = new Schema(
@@ -42,11 +41,7 @@ const userSchema: Schema = new Schema(
     },
     phone: {
       type: [String],
-    },
-    password: {
-      type: String,
-      required: true
-    },
+    }
   },
   { timestamps: true } // Automatically adds createdAt and updatedAt
 );
