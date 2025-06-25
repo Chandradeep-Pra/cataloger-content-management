@@ -7,7 +7,7 @@ export interface User extends Document {
   fullName: string;
   categories: mongoose.Types.ObjectId[]; // Ref to Category
   avatar: string;
-  phone: number;
+  phone: string;
 }
 
 const userSchema: Schema = new Schema(
@@ -18,17 +18,14 @@ const userSchema: Schema = new Schema(
     },
     username: {
       type: String,
-      required: true,
       unique: true,
     },
     email: {
       type: String,
-      required: true,
       unique: true,
     },
     fullName: {
       type: String,
-      required: true,
     },
     categories: [
       {
@@ -40,7 +37,7 @@ const userSchema: Schema = new Schema(
       type: String,
     },
     phone: {
-      type: [String],
+      type: String,
     }
   },
   { timestamps: true } // Automatically adds createdAt and updatedAt

@@ -26,7 +26,7 @@ export async function POST(req: NextRequest) {
       last_name: string;
       profile_image_url: string;
       username: string;
-      phone_numbers: String[]; // You can type more strictly if needed
+      phone_numbers: { phone_number: string }[]; // You can type more strictly if needed
     };
     object: string;
     type: string;
@@ -57,11 +57,11 @@ export async function POST(req: NextRequest) {
 
     await User.create({
       clerkId: id,
-      username,
-      email: email_addresses?.[0]?.email_address ,
-      fullName: `${first_name || ""} ${last_name }`.trim(),
-      avatar: profile_image_url,
-      phone: phone_numbers || [],
+      username: username || "",
+      email: email_addresses[0]?.email_address || "",
+      fullName: `${first_name} ${last_name }`.trim(),
+      avatar: profile_image_url || "",
+      phone: phone_numbers?.[0]?.phone_number || "",
       categories: [],
     });
 
