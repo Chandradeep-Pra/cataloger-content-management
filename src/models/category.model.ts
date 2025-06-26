@@ -7,9 +7,12 @@ export interface Category extends Document {
   description: string;
   isPublic?: boolean;
   level?: number;
-  parentId?: mongoose.Types.ObjectId
+  parentId?: string
   childrenId?: mongoose.Types.ObjectId
   categoryImageId: string 
+  parent?: Category
+  children?: Category[]
+  productCount: number;
 }
 
 const categorySchema: Schema = new Schema(
@@ -52,6 +55,17 @@ const categorySchema: Schema = new Schema(
     categoryImageId:{
       type: String,
       required: true
+    },
+    parent: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Category"
+    },
+    children: [{
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Category"
+    }],
+    productCount:{
+      type: Number
     }
   },
   { timestamps: true }

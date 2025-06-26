@@ -6,7 +6,7 @@ export interface Product extends Document {
   description: string;
   price: number;
   sku: number;
-  category: mongoose.Types.ObjectId;
+  category: string;
   productImageid: string[]
 
 }

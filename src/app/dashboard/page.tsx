@@ -1,8 +1,11 @@
 "use client"
-
+import { CategoryList } from "@/components/categories/category-list"
 const page = () => {
   return (
-    <h1>Hello</h1>
+    <>
+    
+    <CategoryList/>
+    </>
   )
 }
 

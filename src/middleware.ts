@@ -1,6 +1,8 @@
 import { clerkMiddleware, createRouteMatcher } from '@clerk/nextjs/server'
 
-const isProtectedRoute = createRouteMatcher(['/dashboard(.*)'])
+//TODO:
+
+ const isProtectedRoute = createRouteMatcher(['/dashboard(.*)'])
 const isPublicEntryRoute = createRouteMatcher(['/', '/login', '/register','/api/webhooks(.*)'])
 
 export default clerkMiddleware(async (auth, req) => {
