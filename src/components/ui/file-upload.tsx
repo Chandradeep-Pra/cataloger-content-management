@@ -49,43 +49,56 @@ export function FileUpload({
 
 
 const onDrop = useCallback(async (acceptedFiles: File[]) => {
-    const newPreviews: string[] = [];
-    const newCloudinaryIds: string[] = [];
+  console.log('Files dropped:', acceptedFiles);
+  
+  const newPreviews: string[] = [];
+  const newCloudinaryIds: string[] = [];
 
-    for (const file of acceptedFiles.slice(0, maxFiles - value.length)) {
-      // 1. Show preview
-      const reader = new FileReader();
-      reader.onload = () => {
-        const result = reader.result as string;
-        newPreviews.push(result);
-        setPreviews((prev) => [...prev, result]);
-      };
-      reader.readAsDataURL(file);
+  for (const file of acceptedFiles.slice(0, maxFiles - value.length)) {
+    console.log('Processing file:', file.name);
+    
+    // 1. Show preview
+    const reader = new FileReader();
+    reader.onload = () => {
+      const result = reader.result as string;
+      newPreviews.push(result);
+      setPreviews((prev) => [...prev, result]);
+    };
+    reader.readAsDataURL(file);
 
-      // 2. Upload to /api/upload (Cloudinary)
-      const formData = new FormData();
-      formData.append('file', file);
+    // 2. Upload to /api/upload (Cloudinary)
+    const formData = new FormData();
+    formData.append('file', file);
 
-      try {
-        const res = await fetch('/api/uploadOnCloudinary', {
-          method: 'POST',
-          body: formData
-        });
+    try {
+      console.log('Uploading file to Cloudinary...');
+      
+      const res = await fetch('/api/uploadOnCloudinary', {
+        method: 'POST',
+        body: formData
+      });
 
-        const json = await res.json();
-        if (json.success) {
-          // Use `public_id` or `secure_url` depending on what you want to store
-          newCloudinaryIds.push(json.data.public_id);
-        } else {
-          console.error('Upload failed:', json.error || json.message);
-        }
-      } catch (err) {
-        console.error('Upload error:', err);
+      const json = await res.json();
+      console.log('Cloudinary response:', json);
+      
+      if (json) {
+        console.log('Upload successful, public_id:', json.publicId);
+        // Use `public_id` or `secure_url` depending on what you want to store
+        newCloudinaryIds.push(json.publicId);
+      } else {
+        console.error('Upload failed:', json.error || json.message);
       }
+    } catch (err) {
+      console.error('Upload error:', err);
     }
+  }
 
-    onChange([...value, ...newCloudinaryIds]);
-  }, [value, onChange, maxFiles]);
+  console.log('All uploads completed. New Cloudinary IDs:', newCloudinaryIds);
+  console.log('Current value:', value);
+  console.log('Final value being set:', [...value, ...newCloudinaryIds]);
+  
+  onChange([...value, ...newCloudinaryIds]);
+}, [value, onChange, maxFiles]);
   const { getRootProps, getInputProps, isDragActive } = useDropzone({
     onDrop,
     accept,

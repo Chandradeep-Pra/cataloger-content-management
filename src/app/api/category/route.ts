@@ -7,66 +7,81 @@ import { User } from "@/models/users.model";
 
 
 export async function POST(req: Request){
-    const { userId } = await auth();
-    if (!userId) {
-    return new Response("Unauthorized", { status: 401 });
-}
-    dbConnect();
-    try {
-        const body = await req.json();
-        const {name, description, isPublic, level, parentId, categoryImageId, productCount} = body;
-        if(!name || !description ){
-            return Response.json({
-                success:false,
-                message: "Could not get name or description"
-            }, { status: 501 })
-        }
+  const { userId } = await auth();
+  if (!userId) {
+      return new Response("Unauthorized", { status: 401 });
+  }
+  
+  dbConnect();
+  
+  try {
+      const body = await req.json();
+      
+      // Debug: Log the entire body
+      console.log('RECEIVED BODY:', JSON.stringify(body, null, 2));
+      
+      const {name, description, isPublic, level, parentId, categoryImageId, productCount} = body;
+      
+      // Debug: Log each field individually
+      console.log('name:', name);
+      console.log('description:', description);
+      console.log('categoryImageId:', categoryImageId);
+      console.log('categoryImageId type:', typeof categoryImageId);
+      console.log('categoryImageId length:', categoryImageId?.length);
+      
+      if(!name || !description ){
+          return Response.json({
+              success:false,
+              message: "Could not get name or description"
+          }, { status: 501 })
+      }
 
-        
+      const owner = await User.findOne({clerkId:userId})
+      if (!owner) {
+          return NextResponse.json(
+              { success: false, message: "User not found" },
+              { status: 404 }
+          );
+      }
+      
+      const newCategory = new Category({
+          owner: owner._id,
+          products: [],
+          name,
+          description,
+          isPublic,
+          level,
+          parentId,
+          categoryImageId: categoryImageId,
+          productCount
+      })
+      
+      console.log('About to save category with categoryImageId:', newCategory.categoryImageId);
+      
+      await newCategory.save()
 
-        const owner = await User.findOne({clerkId:userId})
-        if (!owner) {
-            return NextResponse.json(
-            { success: false, message: "User not found" },
-            { status: 404 }
-            );
-        }
-        const newCategory = new Category({
-            owner: owner._id,
-            products: [],
-            name,
-            description,
-            isPublic,
-            level,
-            parentId,
-            categoryImageId,
-            productCount
-        })
-        await newCategory.save()
+      if(parentId){
+          await Category.findByIdAndUpdate(parentId, {
+              $push: { children: newCategory._id },
+          });
+      }
 
-        if(parentId){
-            await Category.findByIdAndUpdate(parentId, {
-                $push: { children: newCategory._id },
-            });
-        }
+      owner.categories?.push(newCategory._id);
+      await owner.save();
 
-        owner.categories?.push(newCategory._id);
-        await owner.save();
+      return NextResponse.json({
+          success: true,
+          message: "Category created successfully",
+          categoryImageId: categoryImageId // Include in response for debugging
+      },{ status:200 })
 
-        return NextResponse.json({
-            success: true,
-            message: "Category created successfully"
-        },{ status:200 })
-
-        }
-        catch (error) {
-        console.error("Error creating category", error);
-        return NextResponse.json({
-            success: false,
-            message: "Category creation failed"
-        }, {status: 400})
-    }
-
+  } catch (error) {
+      console.log("Error creating category", error);
+      return NextResponse.json({
+          success: false,
+          message: "Category creation failed"
+      }, {status: 400})
+  }
 }
 
 export async function DELETE(req: Request){

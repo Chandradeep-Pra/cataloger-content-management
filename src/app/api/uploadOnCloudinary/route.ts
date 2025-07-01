@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { v2 as cloudinary } from 'cloudinary';
-import Error from 'next/error';
+import { auth } from '@clerk/nextjs/server';
 
 
 cloudinary.config({
@@ -9,9 +9,21 @@ cloudinary.config({
   api_secret: process.env.CLOUDINARY_API_SECRET,
 });
 
+interface CloudinaryUploadResult{
+  public_id: string,
+  [key:string]: any
+}
 
 export async function POST(req: NextRequest) {
-  const data = await req.formData();
+  
+  const {userId} = await auth()
+  if(!userId){
+    return NextResponse.json({ success: false, error: 'Unauthorized' }, { status: 400 });
+  }
+  
+
+  try {
+    const data = await req.formData();
   const file = data.get('file') as File;
 
   if (!file) {
@@ -21,15 +33,28 @@ export async function POST(req: NextRequest) {
   const arrayBuffer = await file.arrayBuffer();
   const buffer = Buffer.from(arrayBuffer);
 
-  try {
-    const result = await new Promise((resolve, reject) => {
-      cloudinary.uploader.upload_stream({ folder: 'my_uploads' }, (error, result) => {
-        if (error) return reject(error);
-        resolve(result);
-      }).end(buffer);
-    });
+  const result = await new Promise<CloudinaryUploadResult>((resolve, reject) => {
+    cloudinary.uploader.upload_stream({ folder: 'Category' }, 
+        (error, result) => {
+      if (error) return reject(error);
+      else resolve(result as CloudinaryUploadResult);
+    }).end(buffer);
+  });
 
-    return NextResponse.json({ success: true, data: result });
+  return NextResponse.json({ publicId: result.public_id  },{
+    status:200
+  });
+
+
+  } catch (error) {
+    
+  }
+  
+
+  
+
+  try {
+    
   } catch (err : any) {
     return NextResponse.json({ success: false, message: err.message }, { status: 500 });
   }
