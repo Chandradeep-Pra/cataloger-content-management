@@ -7,6 +7,7 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Upload, X, Image as ImageIcon, FileImage } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import Image from 'next/image';
+import { toast } from 'sonner';
 
 interface FileUploadProps {
   value: string[];
@@ -83,6 +84,7 @@ const onDrop = useCallback(async (acceptedFiles: File[]) => {
       
       if (json) {
         console.log('Upload successful, public_id:', json.publicId);
+        toast.success(`Image uploaded successfully`);
         // Use `public_id` or `secure_url` depending on what you want to store
         newCloudinaryIds.push(json.publicId);
       } else {

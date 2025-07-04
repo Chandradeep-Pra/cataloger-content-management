@@ -23,11 +23,11 @@ export async function POST(req: Request){
       const {name, description, isPublic, level, parentId, categoryImageId, productCount} = body;
       
       // Debug: Log each field individually
-      console.log('name:', name);
-      console.log('description:', description);
-      console.log('categoryImageId:', categoryImageId);
-      console.log('categoryImageId type:', typeof categoryImageId);
-      console.log('categoryImageId length:', categoryImageId?.length);
+      // console.log('name:', name);
+      // console.log('description:', description);
+      // console.log('categoryImageId:', categoryImageId);
+      // console.log('categoryImageId type:', typeof categoryImageId);
+      // console.log('categoryImageId length:', categoryImageId?.length);
       
       if(!name || !description ){
           return Response.json({
@@ -56,7 +56,7 @@ export async function POST(req: Request){
           productCount
       })
       
-      console.log('About to save category with categoryImageId:', newCategory.categoryImageId);
+      // console.log('About to save category with categoryImageId:', newCategory.categoryImageId);
       
       await newCategory.save()
 

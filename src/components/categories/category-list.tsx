@@ -11,6 +11,7 @@ import { CategoryCard } from './category-card';
 import { CategoryFormDialog } from './category-form-dialog';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Search, Filter, Plus } from 'lucide-react';
+import { toast } from 'sonner';
 
 export function CategoryList() {
   const [categories, setCategories] = useState<Category[]>([]);
@@ -83,7 +84,8 @@ const handleDelete = async (id: string) => {
       }
       
       const json = await res.json();
-    console.log('Delete response:', json); // Debug log
+      toast.success('Category deleted successfully');
+    // console.log('Delete response:', json); // Debug log
 
     if (!json.success) {
       throw new Error(json.message || 'Failed to delete category');
