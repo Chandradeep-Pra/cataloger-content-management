@@ -1,14 +1,15 @@
 import mongoose, { Schema, Document } from "mongoose";
 
 export interface Product extends Document {
+  _id: mongoose.Types.ObjectId;
   owner: mongoose.Types.ObjectId;
   name: string;
   description: string;
   price: number;
-  sku: number;
-  category: string;
-  productImageid: string[]
-
+  sku: string;
+  category: mongoose.Types.ObjectId;
+  productImageid: string[];
+  isActive: boolean;
 }
 
 const productSchema: Schema = new Schema(
@@ -24,13 +25,16 @@ const productSchema: Schema = new Schema(
     },
     description: {
       type: String,
+      required: true
     },
     price: {
       type: Number,
       required: true,
+      min: 0
     },
     sku: {
-      type: Number,
+      type: String,
+      required: true,
       unique: true,
     },
     category: {
@@ -38,14 +42,18 @@ const productSchema: Schema = new Schema(
       ref: "Category",
       required: true,
     },
-    productImageId: [
+    productImageid: [
       {
         type: String,
         required: true
       }
-    ]
+    ],
+    isActive: {
+      type: Boolean,
+      default: true
+    }
   },
   { timestamps: true }
 );
 
-export const Product =  mongoose.models.Product || mongoose.model<Product>("Product", productSchema);
+export const Product = mongoose.models.Product || mongoose.model<Product>("Product", productSchema);
