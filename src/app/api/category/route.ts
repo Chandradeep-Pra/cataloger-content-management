@@ -6,81 +6,113 @@ import { User } from "@/models/users.model";
 
 
 
-export async function POST(req: Request){
+export async function POST(req: Request) {
+  console.log("🌱 [POST /api/category] Incoming request...");
+
   const { userId } = await auth();
   if (!userId) {
-      return new Response("Unauthorized", { status: 401 });
+    console.warn("❌ Unauthorized user");
+    return new Response("Unauthorized", { status: 401 });
   }
-  
-  dbConnect();
-  
+
+  await dbConnect();
+
+  let body;
   try {
-      const body = await req.json();
-      
-      // Debug: Log the entire body
-      console.log('RECEIVED BODY:', JSON.stringify(body, null, 2));
-      
-      const {name, description, isPublic, level, parentId, categoryImageId, productCount} = body;
-      
-      // Debug: Log each field individually
-      // console.log('name:', name);
-      // console.log('description:', description);
-      // console.log('categoryImageId:', categoryImageId);
-      // console.log('categoryImageId type:', typeof categoryImageId);
-      // console.log('categoryImageId length:', categoryImageId?.length);
-      
-      if(!name || !description ){
-          return Response.json({
-              success:false,
-              message: "Could not get name or description"
-          }, { status: 501 })
-      }
-
-      const owner = await User.findOne({clerkId:userId})
-      if (!owner) {
-          return NextResponse.json(
-              { success: false, message: "User not found" },
-              { status: 404 }
-          );
-      }
-      
-      const newCategory = new Category({
-          owner: owner._id,
-          products: [],
-          name,
-          description,
-          isPublic,
-          level,
-          parentId,
-          categoryImageId: categoryImageId,
-          productCount
-      })
-      
-      // console.log('About to save category with categoryImageId:', newCategory.categoryImageId);
-      
-      await newCategory.save()
-
-      if(parentId){
-          await Category.findByIdAndUpdate(parentId, {
-              $push: { children: newCategory._id },
-          });
-      }
-
-      owner.categories?.push(newCategory._id);
-      await owner.save();
-
-      return NextResponse.json({
-          success: true,
-          message: "Category created successfully",
-          categoryImageId: categoryImageId // Include in response for debugging
-      },{ status:200 })
-
+    body = await req.json();
+    console.log("✅ RECEIVED BODY:", JSON.stringify(body, null, 2));
   } catch (error) {
-      console.log("Error creating category", error);
-      return NextResponse.json({
-          success: false,
-          message: "Category creation failed"
-      }, {status: 400})
+    console.error("❌ Failed to parse JSON body:", error);
+    return NextResponse.json(
+      { success: false, message: "Invalid JSON payload" },
+      { status: 400 }
+    );
+  }
+
+  const {
+    name,
+    description,
+    isPublic,
+    level,
+    parentId,
+    categoryImageIds,
+    productCount
+  } = body;
+
+  if (!name || !description) {
+    return NextResponse.json(
+      {
+        success: false,
+        message: "Missing required fields: name or description",
+      },
+      { status: 400 }
+    );
+  }
+
+  if (!Array.isArray(categoryImageIds)) {
+    return NextResponse.json(
+      {
+        success: false,
+        message: "`categoryImageIds` must be an array of strings",
+      },
+      { status: 400 }
+    );
+  }
+
+  console.log("🧪 categoryImageIds:", {
+    type: typeof categoryImageIds,
+    isArray: Array.isArray(categoryImageIds),
+    length: categoryImageIds.length,
+  });
+
+  try {
+    const owner = await User.findOne({ clerkId: userId });
+    if (!owner) {
+      return NextResponse.json(
+        { success: false, message: "User not found" },
+        { status: 404 }
+      );
+    }
+
+    const newCategory = new Category({
+      owner: owner._id,
+      products: [],
+      name,
+      description,
+      isPublic,
+      level,
+      parentId,
+      categoryImageIds,
+      productCount,
+    });
+
+    // console.log("📦 Saving category:", newCategory);
+
+    await newCategory.save();
+
+    if (parentId) {
+      await Category.findByIdAndUpdate(parentId, {
+        $push: { childrenId: newCategory._id }, // ensure correct field here
+      });
+    }
+
+    owner.categories?.push(newCategory._id);
+    await owner.save();
+
+    return NextResponse.json(
+      {
+        success: true,
+        message: "Category created successfully",
+        categoryId: newCategory._id,
+      },
+      { status: 200 }
+    );
+  } catch (error) {
+    console.error("❌ Error creating category:", error);
+    return NextResponse.json(
+      { success: false, message: "Category creation failed" },
+      { status: 500 }
+    );
   }
 }
 

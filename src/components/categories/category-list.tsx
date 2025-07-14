@@ -12,6 +12,9 @@ import { CategoryFormDialog } from './category-form-dialog';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Search, Filter, Plus } from 'lucide-react';
 import { toast } from 'sonner';
+import { useRouter } from 'next/navigation';
+
+import slugify from 'slugify';
 
 export function CategoryList() {
   const [categories, setCategories] = useState<Category[]>([]);
@@ -26,6 +29,8 @@ export function CategoryList() {
     loadCategories();
   }, []);
 
+  const router = useRouter();
+
   const loadCategories = async () => {
     try {
       setLoading(true);
@@ -36,6 +41,7 @@ export function CategoryList() {
         throw new Error('Failed to fetch categories');
       }
       const data = await res.json(); // ✅ Parse JSON body
+      console.log("Total categories loaded:", data.categories);
       setCategories(data.categories); // or data if your API returns raw list
     } catch (error) {
       console.error('Failed to load categories:', error);
@@ -43,6 +49,14 @@ export function CategoryList() {
       setLoading(false);
     }
   };
+
+  const handleCardClick = (category: Category) => {
+    // const slug = slugify(category.id, { lower: true });
+    // console.log("Navigating to:", `/category/${slug}`);
+    console.log(category)
+  router.push(`/category/${category._id}`);
+};
+
 
   const handleEdit = (category: Category) => {
     setEditingCategory(category);
@@ -218,6 +232,9 @@ const handleDelete = async (id: string) => {
               category={category}
               onEdit={handleEdit}
               onDelete={handleDelete}
+              onClick={() => {
+                console.log("On card click, navigating to category:", category.name);
+                handleCardClick(category)}}
             />
           ))}
         </div>

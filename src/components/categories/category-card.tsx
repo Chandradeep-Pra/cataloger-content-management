@@ -10,16 +10,19 @@ import { Edit, Trash2, Package, FolderTree } from 'lucide-react';
 import Image from 'next/image';
 
 interface CategoryCardProps {
+  key: string;
   category: Category;
   onEdit: (category: Category) => void;
   onDelete: (id: string) => void;
+   onClick?: () => void; 
 }
 
 
 
-export function CategoryCard({ category, onEdit, onDelete }: CategoryCardProps) {
+export function CategoryCard({ key,category, onEdit, onDelete, onClick }: CategoryCardProps) {
+  // console.log('CategoryCard rendered with category:', category);
   return (
-    <Card className="overflow-hidden hover:shadow-md transition-shadow">
+    <Card className="overflow-hidden hover:shadow-md transition-shadow" onClick={onClick} key={key}>
       <CardHeader>
         <div className="flex items-start justify-between">
           <div className="space-y-1">
@@ -35,10 +38,10 @@ export function CategoryCard({ category, onEdit, onDelete }: CategoryCardProps) 
       </CardHeader>
       
       <CardContent className="space-y-3">
-        {category.categoryImageId && (
-          <div className="aspect-video rounded-md overflow-hidden">
+        {category.categoryImageIds && (
+          <div className="aspect-video rounded-md overflow-hidden object-cover">
             <img
-              src={`https://res.cloudinary.com/dd2w4lpft/image/upload/${category.categoryImageId}.png`}
+              src={`https://res.cloudinary.com/dd2w4lpft/image/upload/${category.categoryImageIds[1]}.png`}
               alt={category.name}
               className="w-full h-full object-cover"
             />
@@ -71,19 +74,21 @@ export function CategoryCard({ category, onEdit, onDelete }: CategoryCardProps) 
       </CardContent>
       
       <CardFooter className="flex justify-between">
-        <Button variant="outline" size="sm" onClick={() => onEdit(category)}>
+        <Button variant="outline" size="sm" onClick={(e) => {
+          e.stopPropagation(); 
+          onEdit(category)}}>
           <Edit className="h-4 w-4 mr-1" />
           Edit
         </Button>
         
         <AlertDialog>
           <AlertDialogTrigger asChild>
-            <Button variant="outline" size="sm">
+            <Button variant="outline" size="sm"  onClick={(e) => e.stopPropagation()}>
               <Trash2 className="h-4 w-4 mr-1" />
               Delete
             </Button>
           </AlertDialogTrigger>
-          <AlertDialogContent>
+          <AlertDialogContent  onClick={(e) => e.stopPropagation()}>
             <AlertDialogHeader>
               <AlertDialogTitle>Delete Category</AlertDialogTitle>
               <AlertDialogDescription>
@@ -91,8 +96,11 @@ export function CategoryCard({ category, onEdit, onDelete }: CategoryCardProps) 
               </AlertDialogDescription>
             </AlertDialogHeader>
             <AlertDialogFooter>
-              <AlertDialogCancel>Cancel</AlertDialogCancel>
-              <AlertDialogAction onClick={() => onDelete(String(category._id))}>
+              <AlertDialogCancel  onClick={(e) => e.stopPropagation()}>Cancel</AlertDialogCancel>
+              <AlertDialogAction onClick={(e) => {
+          e.stopPropagation();
+          onDelete(String(category._id));
+        }}>
                 Delete
               </AlertDialogAction>
             </AlertDialogFooter>

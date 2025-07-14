@@ -5,11 +5,14 @@ export interface Product extends Document {
   name: string;
   description: string;
   price: number;
-  sku: number;
+  sku?: string; 
   category: string;
-  productImageid: string[]
-
+  productImageIds: string[]; 
+  isActive: boolean;
+  colors: string[];
+  sizes: Array<"s" | "m" | "l" | "xl" | "xxl" | "xxxl" | "custom">; 
 }
+
 
 const productSchema: Schema = new Schema(
   {
@@ -30,22 +33,39 @@ const productSchema: Schema = new Schema(
       required: true,
     },
     sku: {
-      type: Number,
+      type: String, 
       unique: true,
+      // required: true,
     },
     category: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "Category",
       required: true,
     },
-    productImageId: [
+    productImageIds: [
       {
         type: String,
-        required: true
-      }
-    ]
+        required: true,
+      },
+    ],
+    isActive: {
+      type: Boolean,
+      default: true,
+    },
+    colors: [
+      {
+        type: String,
+      },
+    ],
+    sizes: [
+      {
+        type: String,
+        enum: ["s", "m", "l", "xl", "xxl", "xxxl", "custom"],
+      },
+    ],
   },
   { timestamps: true }
 );
+
 
 export const Product =  mongoose.models.Product || mongoose.model<Product>("Product", productSchema);

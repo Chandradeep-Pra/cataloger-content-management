@@ -14,15 +14,17 @@ export interface DashboardStats {
     isPublic: boolean;
     level: number;
     parentId?: string;
-    categoryImageId?: string;
+    categoryImageIds?: string[];
   }
   
-  export interface ProductFormData {
-    name: string;
-    description: string;
-    price: number;
-    sku: string;
-    category: string;
-    productImageid: string[];
-    isActive: boolean;
-  }
+ export interface ProductFormData {
+  name: string;
+  description: string;
+  price: number;
+  sku: string;
+  category: string;
+  productImageIds: string[];
+  isActive: boolean;
+  colors: string[];
+  sizes: Array<"s" | "m" | "l" | "xl" | "xxl" | "xxxl" | "custom">;
+}

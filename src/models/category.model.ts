@@ -7,42 +7,47 @@ export interface Category extends Document {
   description: string;
   isPublic?: boolean;
   level?: number;
-  parentId?: string
-  childrenId?: mongoose.Types.ObjectId
-  categoryImageId: string 
-  parent?: Category
-  children?: Category[]
+  parent?:Category;
+  children?: Category[];
+  parentId?: mongoose.Types.ObjectId;
+  childrenId?: mongoose.Types.ObjectId[]; // fixed to array
+  categoryImageIds: string[]; // cloudinary ids or similar
   productCount: number;
 }
 
-const categorySchema: Schema = new Schema(
+const categorySchema = new Schema<Category>(
   {
     owner: {
-      type: mongoose.Schema.Types.ObjectId,
+      type: Schema.Types.ObjectId,
       ref: "User",
       required: true,
     },
     products: [
       {
-        type: mongoose.Schema.Types.ObjectId,
+        type: Schema.Types.ObjectId,
         ref: "Product",
-        default: null
+        default: [],
       },
     ],
-    parentId:{
-      type: mongoose.Schema.Types.ObjectId,
+    parentId: {
+      type: Schema.Types.ObjectId,
       ref: "Category",
+      default: null,
     },
-    childrenId:[{
-      type: mongoose.Schema.Types.ObjectId,
-      ref: "Category",
-    }],
+    childrenId: [
+      {
+        type: Schema.Types.ObjectId,
+        ref: "Category",
+        default: [],
+      },
+    ],
     name: {
       type: String,
       required: true,
     },
     description: {
       type: String,
+      default: "",
     },
     isPublic: {
       type: Boolean,
@@ -52,23 +57,18 @@ const categorySchema: Schema = new Schema(
       type: Number,
       default: 0,
     },
-    categoryImageId:{
-      type: String,
-      required: true
+    categoryImageIds: {
+      type: [String], 
+      required: true,
+      default: [],
     },
-    parent: {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: "Category"
+    productCount: {
+      type: Number,
+      default: 0,
     },
-    children: [{
-      type: mongoose.Schema.Types.ObjectId,
-      ref: "Category"
-    }],
-    productCount:{
-      type: Number
-    }
   },
   { timestamps: true }
 );
 
-export const Category =  mongoose.models.Category || mongoose.model<Category>("Category", categorySchema);
+export const Category =
+  mongoose.models.Category || mongoose.model<Category>("Category", categorySchema);

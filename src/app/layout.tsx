@@ -33,18 +33,15 @@ export default function RootLayout({
   return (
     <ClerkProvider>
       <html lang="en">
-        <body className={`${geistSans.variable} ${geistMono.variable} antialiased p-12` }>
+        <body className={`${geistSans.variable} ${geistMono.variable} antialiased ` }>
         <ThemeProvider
       attribute="class"
       defaultTheme="system"
       enableSystem
       disableTransitionOnChange={false}
     >
-          <header className="flex justify-end items-center ">
-            {/* <SignedOut>
-              <SignInButton />
-              <SignUpButton />
-            </SignedOut> */}
+          {/* <header className="flex justify-end items-center ">
+            
             <SignedIn>
               <div className='flex items-center space-x-8'>
               <ThemeToggle />
@@ -52,7 +49,7 @@ export default function RootLayout({
               </div>
            
             </SignedIn>
-          </header>
+          </header> */}
           {children}
           <Toaster />
     </ThemeProvider>
