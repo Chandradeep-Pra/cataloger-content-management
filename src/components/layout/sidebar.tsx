@@ -99,7 +99,7 @@ const Sidebar = ({
         expanded ? 'w-56' : 'w-20'
       )}
     >
-      <div className="flex items-center justify-between p-4 font-bold text-lg text-foreground">
+      <div className={clsx("flex items-center justify-between p-4 font-bold text-lg text-foreground",expanded?'justify-start':'justify-center')}>
         {expanded ? 'Catalog CMS' : '🧩'}
       </div>
 

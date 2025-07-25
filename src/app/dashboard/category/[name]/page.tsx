@@ -7,6 +7,9 @@ import { Badge } from '@/components/ui/badge';
 import Image from 'next/image';
 import { Button } from '@/components/ui/button';
 import { ArrowLeft, Plus, X } from 'lucide-react';
+import { SearchAndFilter } from '@/components/SearchAndFilter'; // ✅ Make sure path is correct
+import { ProductFormDialog } from '@/components/product/product-from-dialog';
+import { Product } from '@/models/product.model';
 
 type Category = {
   _id: string;
@@ -25,6 +28,15 @@ export default function CategoryPage({ params }: { params: { name: string } }) {
   const [loading, setLoading] = useState(true);
   const [expandedImageIndex, setExpandedImageIndex] = useState<number | null>(null);
   const router = useRouter();
+
+  // 🔍 Product filter states
+  const [searchTerm, setSearchTerm] = useState('');
+  const [statusFilter, setStatusFilter] = useState('all');
+  const [priceFilter, setPriceFilter] = useState('all');
+
+  // 🛠️ Dialog states
+  const [showDialog, setShowDialog] = useState(false);
+const [editingProduct, setEditingProduct] = useState<Product | null>(null);
 
   const loadCategory = async (id: string) => {
     try {
@@ -91,52 +103,45 @@ export default function CategoryPage({ params }: { params: { name: string } }) {
             <ArrowLeft className="w-4 h-4 mr-2" />
             Back
           </Button>
-          <Button className="rounded-full p-2 hover:scale-110 transition">
+
+          <Button className="rounded-full p-2 hover:scale-110 transition" onClick={() => setShowDialog(true)}>
             <Plus />
           </Button>
+          <ProductFormDialog open={showDialog} onOpenChange={setShowDialog} onSuccess={() => alert('Success from product add')} />
         </div>
       </div>
 
-      {/* Image Gallery */}
-      <div className="space-y-4">
-        <h2 className="text-2xl font-semibold">Gallery</h2>
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
-          {category.categoryImageIds?.length > 0 ? (
-            category.categoryImageIds.map((id, index) => {
-              const isExpanded = expandedImageIndex === index;
-              return (
-                <div
-                  key={index}
-                  onClick={() => handleImageClick(index)}
-                  className={`relative border overflow-hidden rounded-md group cursor-pointer transition-all ${
-                    isExpanded ? 'col-span-2 md:col-span-3 h-[500px]' : 'h-48'
-                  }`}
-                >
-                  <Image
-                    src={`https://res.cloudinary.com/dd2w4lpft/image/upload/${id}.png`}
-                    alt={`Category Image ${index + 1}`}
-                    fill
-                    className="object-cover"
-                  />
-                  {isExpanded && (
-                    <button
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        setExpandedImageIndex(null);
-                      }}
-                      className="absolute top-2 right-2 z-10 p-1 bg-white/80 rounded-full hover:bg-white text-black shadow"
-                    >
-                      <X className="w-4 h-4" />
-                    </button>
-                  )}
-                </div>
-              );
-            })
-          ) : (
-            <p className="text-muted-foreground">No images added to this category.</p>
-          )}
-        </div>
-      </div>
+      {/* Search and Filter for Products */}
+      <SearchAndFilter
+        searchValue={searchTerm}
+        onSearchChange={setSearchTerm}
+        placeholder="Search products..."
+        filters={[
+          {
+            key: 'availability',
+            label: 'Availability',
+            value: statusFilter,
+            onChange: setStatusFilter,
+            options: [
+              { label: 'All', value: 'all' },
+              { label: 'In Stock', value: 'in_stock' },
+              { label: 'Out of Stock', value: 'out_of_stock' },
+            ],
+          },
+          {
+            key: 'price',
+            label: 'Price',
+            value: priceFilter,
+            onChange: setPriceFilter,
+            options: [
+              { label: 'All', value: 'all' },
+              { label: 'Under $50', value: 'under_50' },
+              { label: '$50–$100', value: '50_100' },
+              { label: 'Over $100', value: 'over_100' },
+            ],
+          },
+        ]}
+      />
 
       {/* Products Placeholder */}
       <div className="space-y-4">
