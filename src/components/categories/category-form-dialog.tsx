@@ -13,6 +13,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { FileUpload } from '@/components/ui/file-upload';
 import { Loader2 } from 'lucide-react';
 import { toast } from 'sonner';
+import dbConnect from '@/lib/dbConnect';
 // import dbConnect from '@/lib/dbConnect';
 
 
@@ -42,8 +43,8 @@ export function CategoryFormDialog({ open, onOpenChange, category, onSuccess, ca
         description: category.description,
         isPublic: category.isPublic ?? true,
         level: category.level ?? 1,
-        parentId: category.parentId || '',
-        images: category.categoryImageId ? [category.categoryImageId] : []
+        parentId: category.parentId?.toString() || '',
+        images: category.categoryImageIds ? category.categoryImageIds : []
       });
     } else {
       setFormData({
@@ -68,10 +69,10 @@ export function CategoryFormDialog({ open, onOpenChange, category, onSuccess, ca
         isPublic: formData.isPublic,
         level: formData.level,
         parentId: formData.parentId || undefined,
-        categoryImageId: formData.images.length > 0 ? formData.images[0] : '',
+        categoryImageIds: formData.images,
         childrenId: []
       };
-
+      console.log("Submit Data:", submitData);
       // await dbConnect()
       if (category) {
         try {
@@ -160,7 +161,7 @@ export function CategoryFormDialog({ open, onOpenChange, category, onSuccess, ca
             <FileUpload
               value={formData.images}
               onChange={(images) => setFormData({ ...formData, images })}
-              maxFiles={1}
+              maxFiles={5}
             />
           </div>
           
@@ -217,7 +218,7 @@ export function CategoryFormDialog({ open, onOpenChange, category, onSuccess, ca
             <Button type="button" variant="outline" onClick={() => onOpenChange(false)}>
               Cancel
             </Button>
-            <Button type="submit" disabled={loading} onSubmit={handleSubmit}>
+            <Button type="submit" disabled={loading || formData.images.length === 0} onSubmit={handleSubmit} >
               {loading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
               {category ? 'Update' : 'Create'}
             </Button>

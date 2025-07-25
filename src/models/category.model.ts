@@ -58,16 +58,16 @@ const categoryLayoutSchema = new Schema({
   }
 });
 
-const categorySchema: Schema = new Schema(
+const categorySchema = new Schema<Category>(
   {
     owner: {
-      type: mongoose.Schema.Types.ObjectId,
+      type: Schema.Types.ObjectId,
       ref: "User",
       required: true,
     },
     products: [
       {
-        type: mongoose.Schema.Types.ObjectId,
+        type: Schema.Types.ObjectId,
         ref: "Product",
         default: []
       },
@@ -75,6 +75,7 @@ const categorySchema: Schema = new Schema(
     parentId: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "Category",
+      default: null,
     },
     children: [{
       type: mongoose.Schema.Types.ObjectId,
