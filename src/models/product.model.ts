@@ -1,6 +1,7 @@
 import mongoose, { Schema, Document } from "mongoose";
 
 export interface Product extends Document {
+  _id: mongoose.Types.ObjectId;
   owner: mongoose.Types.ObjectId;
   name: string;
   description: string;
@@ -28,10 +29,12 @@ const productSchema: Schema = new Schema(
     },
     description: {
       type: String,
+      required: true
     },
     price: {
       type: Number,
       required: true,
+      min: 0
     },
     sku: {
       type: String, 

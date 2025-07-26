@@ -1,4 +1,4 @@
- 'use client';
+'use client';
 
 import React from 'react';
 import { Button } from '@/components/ui/button';
@@ -12,19 +12,22 @@ import {
 } from '@/components/ui/dropdown-menu';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Moon, Sun, LogOut, User } from 'lucide-react';
-// import { useTheme } from 'next-themes';
 import { ThemeToggle } from '../ThemeToggle';
-// import { useAuth } from '@/contexts/auth-context';
-import { auth, currentUser } from '@clerk/nextjs/server';
 import Link from 'next/link';
 import { toast } from 'sonner';
 
-export async function Header() {
+interface HeaderProps {
+  userId?: string | null;
+  user?: {
+    id: string;
+    firstName?: string | null;
+    lastName?: string | null;
+    emailAddresses: Array<{ emailAddress: string }>;
+    imageUrl?: string;
+  } | null;
+}
 
-    const { userId } = await auth()
-   
-
-    const user = await currentUser()
+export function Header({ userId, user }: HeaderProps) {
   return (
     <header className="flex h-16 items-center justify-between border-b bg-background px-6">
       <div className="flex items-center gap-4">
@@ -46,9 +49,9 @@ export async function Header() {
           <DropdownMenuTrigger asChild>
             <Button variant="ghost" className="relative h-8 w-8 rounded-full">
               <Avatar className="h-8 w-8">
-                <AvatarImage src={user?.avatar} alt={user?.name} />
+                <AvatarImage src={user?.imageUrl} alt={user?.firstName || 'User'} />
                 <AvatarFallback>
-                  {user?.name?.charAt(0).toUpperCase()}
+                  {user?.firstName?.charAt(0).toUpperCase() || 'U'}
                 </AvatarFallback>
               </Avatar>
             </Button>
@@ -56,9 +59,11 @@ export async function Header() {
           <DropdownMenuContent className="w-56" align="end" forceMount>
             <DropdownMenuLabel className="font-normal">
               <div className="flex flex-col space-y-1">
-                <p className="text-sm font-medium leading-none">{user?.name}</p>
+                <p className="text-sm font-medium leading-none">
+                  {user?.firstName} {user?.lastName}
+                </p>
                 <p className="text-xs leading-none text-muted-foreground">
-                  {user?.email}
+                  {user?.emailAddresses[0]?.emailAddress}
                 </p>
               </div>
             </DropdownMenuLabel>
