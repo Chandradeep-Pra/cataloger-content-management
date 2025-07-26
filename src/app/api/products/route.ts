@@ -6,60 +6,144 @@ import { User } from "@/models/users.model";
 
 import { Category } from "@/models/category.model";
 
-export async function POST(req: Request){
-    const {userId} = await auth()
-    if(!userId){
-        return NextResponse.json({
-            success: false,
-            message: "Unauthorized"
-        }, {status: 401})
-    }
-    dbConnect();
-    try {
-        const body  = await req.json()
-        const {name, description, price, sku, productImageId, categoryId} = body;
-        if(!name || !description || !price || !sku || !categoryId){
-            console.log("Could not get values for all the fields");
-            return NextResponse.json({
-                success:false,
-                message: "Could not get values for all the fields"
-            }, { status: 501 })
-        }
-        const owner = User.findOne({clerkId: userId})
-        if (!owner) {
-            return NextResponse.json(
-            { success: false, message: "User not found" },
-            { status: 404 }
-            );
-        }
-        const newProduct = new Product({
-            owner,
-            name,
-            description,
-            price,
-            sku,
-            category: categoryId,
-            productImageId
-        })
-        await newProduct.save()
+// export async function POST(req: Request){
+//     const {userId} = await auth()
+//     if(!userId){
+//         return NextResponse.json({
+//             success: false,
+//             message: "Unauthorized"
+//         }, {status: 401})
+//     }
+//     dbConnect();
+//     try {
+//         const body  = await req.json()
+//         const {name, description, price, sku, productImageIds, categoryId, tags, colors} = body;
+//         if(!name || !description || !price || !sku || !categoryId){
+//             console.log("Could not get values for all the fields");
+//             return NextResponse.json({
+//                 success:false,
+//                 message: "Could not get values for all the fields"
+//             }, { status: 501 })
+//         }
+//         const owner = User.findOne({clerkId: userId})
+//         if (!owner) {
+//             return NextResponse.json(
+//             { success: false, message: "User not found" },
+//             { status: 404 }
+//             );
+//         }
+//         const newProduct = new Product({
+//             owner,
+//             name,
+//             description,
+//             price,
+//             sku,
+//             category: categoryId,
+//             productImageId
+//         })
+//         await newProduct.save()
         
-        await Category.findByIdAndUpdate(categoryId,{
-            $push: { products: newProduct._id },
-        })
+//         await Category.findByIdAndUpdate(categoryId,{
+//             $push: { products: newProduct._id },
+//         })
 
-        return NextResponse.json({
-            success: true,
-            message: "Product listed successfully"
-        }, {status:200})
+//         return NextResponse.json({
+//             success: true,
+//             message: "Product listed successfully"
+//         }, {status:200})
 
-    } catch (error) {
-        console.error("Error posting product", error)
-        return NextResponse.json({
-            success: false,
-            message: "Error posting product"
-        }, {status: 401})
+//     } catch (error) {
+//         console.error("Error posting product", error)
+//         return NextResponse.json({
+//             success: false,
+//             message: "Error posting product"
+//         }, {status: 401})
+//     }
+// }
+export async function POST(req: Request) {
+  const { userId } = await auth();
+  if (!userId) {
+    return NextResponse.json(
+      { success: false, message: "Unauthorized" },
+      { status: 401 }
+    );
+  }
+
+  await dbConnect();
+
+  try {
+    const body = await req.json();
+    console.log(body)
+    const {
+      name,
+      description,
+      price,
+      sku,
+      productImageIds,
+      categoryId,
+      tags,
+      colors,
+      isActive,
+    } = body;
+
+    // Basic validation
+    if (!name || !description || !price || !sku || !categoryId) {
+      return NextResponse.json(
+        {
+          success: false,
+          message: "Missing required product fields",
+        },
+        { status: 400 }
+      );
     }
+
+    const owner = await User.findOne({ clerkId: userId });
+    if (!owner) {
+      return NextResponse.json(
+        { success: false, message: "User not found" },
+        { status: 404 }
+      );
+    }
+
+    const newProduct = new Product({
+      owner: owner._id,
+      name,
+      description,
+      price,
+      sku,
+      category: categoryId,
+      productImageIds,
+      tags,
+      colors,
+      isActive,
+    });
+
+    await newProduct.save();
+
+    await Category.findByIdAndUpdate(categoryId, {
+      $push: { products: newProduct._id },
+    });
+
+    return NextResponse.json(
+      {
+        success: true,
+        message: "Product listed successfully",
+        productId: newProduct._id,
+      },
+      { status: 200 }
+    );
+  } catch (error) {
+    console.error("Error posting product", error);
+    return NextResponse.json(
+      {
+        success: false,
+        message: "Internal Server Error",
+      },
+      { status: 500 }
+    );
+  }
 }
+
 
 export async function DELETE(req: Request) {
     const { userId } = await auth();

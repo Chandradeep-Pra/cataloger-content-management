@@ -25,6 +25,7 @@ export interface DashboardStats {
   category: string;
   productImageIds: string[];
   isActive: boolean;
+  tags: string[];
   colors: string[];
-  sizes: Array<"s" | "m" | "l" | "xl" | "xxl" | "xxxl" | "custom">;
+  sizes?: Array<"s" | "m" | "l" | "xl" | "xxl" | "xxxl" | "custom">;
 }

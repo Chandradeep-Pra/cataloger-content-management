@@ -9,6 +9,7 @@ export interface Product extends Document {
   category: string;
   productImageIds: string[]; 
   isActive: boolean;
+  tags?: string[];
   colors: string[];
   sizes: Array<"s" | "m" | "l" | "xl" | "xxl" | "xxxl" | "custom">; 
 }
@@ -53,6 +54,11 @@ const productSchema: Schema = new Schema(
       default: true,
     },
     colors: [
+      {
+        type: String,
+      },
+    ],
+    tags: [
       {
         type: String,
       },
