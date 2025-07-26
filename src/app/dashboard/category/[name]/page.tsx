@@ -1,15 +1,16 @@
-'use client';
+"use client";
 
-import React, { useEffect, useState } from 'react';
-import { useRouter } from 'next/navigation';
-import { Skeleton } from '@/components/ui/skeleton';
-import { Badge } from '@/components/ui/badge';
-import Image from 'next/image';
-import { Button } from '@/components/ui/button';
-import { ArrowLeft, Plus, X } from 'lucide-react';
-import { SearchAndFilter } from '@/components/SearchAndFilter'; // ✅ Make sure path is correct
-import { ProductFormDialog } from '@/components/product/product-from-dialog';
-import { Product } from '@/models/product.model';
+import React, { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
+import { Skeleton } from "@/components/ui/skeleton";
+import { Badge } from "@/components/ui/badge";
+import Image from "next/image";
+import { Button } from "@/components/ui/button";
+import { ArrowLeft, Plus, X } from "lucide-react";
+import { SearchAndFilter } from "@/components/SearchAndFilter"; // ✅ Make sure path is correct
+import { ProductFormDialog } from "@/components/product/product-from-dialog";
+import { Product } from "@/models/product.model";
+import ProductList from "@/components/product/product-list";
 
 type Category = {
   _id: string;
@@ -26,28 +27,31 @@ type Category = {
 export default function CategoryPage({ params }: { params: { name: string } }) {
   const [category, setCategory] = useState<Category | null>(null);
   const [loading, setLoading] = useState(true);
-  const [expandedImageIndex, setExpandedImageIndex] = useState<number | null>(null);
+  const [expandedImageIndex, setExpandedImageIndex] = useState<number | null>(
+    null
+  );
   const router = useRouter();
 
   // 🔍 Product filter states
-  const [searchTerm, setSearchTerm] = useState('');
-  const [statusFilter, setStatusFilter] = useState('all');
-  const [priceFilter, setPriceFilter] = useState('all');
+  const [searchTerm, setSearchTerm] = useState("");
+  const [statusFilter, setStatusFilter] = useState("all");
+  const [priceFilter, setPriceFilter] = useState("all");
 
   // 🛠️ Dialog states
   const [showDialog, setShowDialog] = useState(false);
-const [editingProduct, setEditingProduct] = useState<Product | null>(null);
+  const [editingProduct, setEditingProduct] = useState<Product | null>(null);
 
   const loadCategory = async (id: string) => {
     try {
       const res = await fetch(`/api/category/${id}`);
-      if (!res.ok) throw new Error('Failed to fetch category');
+      if (!res.ok) throw new Error("Failed to fetch category");
       const data = await res.json();
-      if (!data?.category) throw new Error('Not found');
+      if (!data?.category) throw new Error("Not found");
       setCategory(data.category);
+      // console.log(data.category)
     } catch (err) {
-      console.error('Category load error:', err);
-      router.push('/not-found');
+      console.error("Category load error:", err);
+      router.push("/not-found");
     } finally {
       setLoading(false);
     }
@@ -86,12 +90,13 @@ const [editingProduct, setEditingProduct] = useState<Product | null>(null);
         <div className="space-y-2">
           <h1 className="text-4xl font-bold tracking-tight">{category.name}</h1>
           <p className="text-muted-foreground text-base max-w-xl">
-            {category.description || 'No description available for this category.'}
+            {category.description ||
+              "No description available for this category."}
           </p>
           <div className="flex gap-2 mt-2 flex-wrap">
-            <Badge>{category.isPublic ? 'Public' : 'Private'}</Badge>
+            <Badge>{category.isPublic ? "Public" : "Private"}</Badge>
             <Badge variant="outline">Level {category.level}</Badge>
-            <Badge variant="secondary">{category.productCount} Products</Badge>
+            <Badge variant="secondary">{category.products.length} Products</Badge>
           </div>
         </div>
         <div className="flex gap-2 items-center">
@@ -104,10 +109,18 @@ const [editingProduct, setEditingProduct] = useState<Product | null>(null);
             Back
           </Button>
 
-          <Button className="rounded-full p-2 hover:scale-110 transition" onClick={() => setShowDialog(true)}>
+          <Button
+            className="rounded-full p-2 hover:scale-110 transition"
+            onClick={() => setShowDialog(true)}
+          >
             <Plus />
           </Button>
-          <ProductFormDialog open={showDialog} onOpenChange={setShowDialog} onSuccess={() => alert('Success from product add')} />
+          <ProductFormDialog
+            open={showDialog}
+            category={{name: category.name, id: category._id}}
+            onOpenChange={setShowDialog}
+            onSuccess={() => alert("Success from product add")}
+          />
         </div>
       </div>
 
@@ -118,26 +131,26 @@ const [editingProduct, setEditingProduct] = useState<Product | null>(null);
         placeholder="Search products..."
         filters={[
           {
-            key: 'availability',
-            label: 'Availability',
+            key: "availability",
+            label: "Availability",
             value: statusFilter,
             onChange: setStatusFilter,
             options: [
-              { label: 'All', value: 'all' },
-              { label: 'In Stock', value: 'in_stock' },
-              { label: 'Out of Stock', value: 'out_of_stock' },
+              { label: "All", value: "all" },
+              { label: "In Stock", value: "in_stock" },
+              { label: "Out of Stock", value: "out_of_stock" },
             ],
           },
           {
-            key: 'price',
-            label: 'Price',
+            key: "price",
+            label: "Price",
             value: priceFilter,
             onChange: setPriceFilter,
             options: [
-              { label: 'All', value: 'all' },
-              { label: 'Under $50', value: 'under_50' },
-              { label: '$50–$100', value: '50_100' },
-              { label: 'Over $100', value: 'over_100' },
+              { label: "All", value: "all" },
+              { label: "Under $50", value: "under_50" },
+              { label: "$50–$100", value: "50_100" },
+              { label: "Over $100", value: "over_100" },
             ],
           },
         ]}
@@ -146,9 +159,16 @@ const [editingProduct, setEditingProduct] = useState<Product | null>(null);
       {/* Products Placeholder */}
       <div className="space-y-4">
         <h2 className="text-2xl font-semibold">Products in this Category</h2>
-        <div className="border border-dashed rounded-lg p-8 text-center text-muted-foreground">
+        <ProductList
+  categoryId={category._id}
+  searchTerm={searchTerm}
+  statusFilter={statusFilter}
+  priceFilter={priceFilter}
+/>
+
+        {/* <div className="border border-dashed rounded-lg p-8 text-center text-muted-foreground">
           Product list coming soon.
-        </div>
+        </div> */}
       </div>
 
       {/* Metadata / Timestamp */}
